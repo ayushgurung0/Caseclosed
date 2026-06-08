@@ -1,0 +1,199 @@
+{
+  "cases": [
+    {
+      "id": 1,
+      "case_number": "CC-024",
+      "title": "The Thamel Midnight Murder",
+      "location": "Thamel, Kathmandu",
+      "summary": "At 1:14 AM on Friday, Bikram Thapa — owner of the jazz bar \"The Blue Note\" — was found dead in the venue's back office. Blunt force trauma. Three people had keys.",
+      "status": "active",
+      "prize_amount": 3000,
+      "closes_at": "2026-05-26T19:15:41.859Z",
+      "answer": "Rajan Maharjan",
+      "created_at": "2026-05-22T19:15:41.859Z"
+    }
+  ],
+  "suspects": [
+    {
+      "id": 1,
+      "case_id": 1,
+      "name": "Aditya Khatri",
+      "role": "Business Partner",
+      "motive": "Unresolved debt dispute. Rs. 4 lakh allegedly owed. Heated argument two days prior.",
+      "is_primary": 1
+    },
+    {
+      "id": 2,
+      "case_id": 1,
+      "name": "Priya Shrestha",
+      "role": "Ex-girlfriend",
+      "motive": "Bar tab terminated that evening. Seen arguing with Bikram near closing time.",
+      "is_primary": 0
+    },
+    {
+      "id": 3,
+      "case_id": 1,
+      "name": "Rajan Maharjan",
+      "role": "Head Bartender",
+      "motive": "Fired the previous week. Still had a spare key. Told staff he had \"unfinished business.\"",
+      "is_primary": 0
+    }
+  ],
+  "clues": [
+    {
+      "id": 1,
+      "case_id": 1,
+      "day_number": 1,
+      "clue_type": "case_file",
+      "title": "Case File",
+      "content": "<p><strong>Victim:</strong> Bikram Thapa, 44. Owner of The Blue Note jazz bar, Thamel. Found by cleaning staff at 7:20 AM. Time of death: 12:30 AM – 2:00 AM.</p><p><strong>Cause of death:</strong> Single blunt force trauma to the back of the head. No forced entry. Both doors locked from inside.</p><p class=\"hl\">\"Whoever did this had a key — and knew exactly where they were going.\" — Investigating Officer</p><p style=\"font-size:0.65rem;color:rgba(107,99,88,0.5)\">📦 Your physical kit includes CCTV printouts, suspect dossiers, and the brass weapon prop.</p>",
+      "released_at": "2026-05-19T19:15:41.863Z"
+    },
+    {
+      "id": 2,
+      "case_id": 1,
+      "day_number": 2,
+      "clue_type": "news",
+      "title": "Breaking News",
+      "content": "<p><strong>Kantipur Post — Tuesday Edition</strong></p><p class=\"hl\">\"Records show The Blue Note was co-owned by a silent third partner holding 35% who had been seeking to dissolve the partnership for three months.\"</p><p>CCTV from a neighbouring shop captured an unidentified figure near the rear entrance at approximately <strong>12:42 AM</strong>.</p>",
+      "released_at": "2026-05-20T19:15:41.863Z"
+    },
+    {
+      "id": 3,
+      "case_id": 1,
+      "day_number": 3,
+      "clue_type": "interview",
+      "title": "Witness Interview",
+      "content": "<p><strong>Transcript — Witness A (identity withheld)</strong></p><p><strong>Officer:</strong> Did you see who entered?</p><p><strong>Witness A:</strong> I saw them. I recognised them. But I'm not saying the name on record. Not yet.</p><p class=\"hl\">\"They were carrying something wrapped in cloth. Flat. About this long.\" [Witness indicates approximately 30–40cm]</p>",
+      "released_at": "2026-05-21T19:15:41.863Z"
+    },
+    {
+      "id": 4,
+      "case_id": 1,
+      "day_number": 4,
+      "clue_type": "court",
+      "title": "Court Hearing",
+      "content": "<p>Court hearing transcript. Alibi statements filed. Someone's story won't match the timestamps.</p>",
+      "released_at": "2026-05-23T19:15:41.863Z"
+    },
+    {
+      "id": 5,
+      "case_id": 1,
+      "day_number": 7,
+      "clue_type": "verdict",
+      "title": "Case Closes",
+      "content": "<p>Submit your verdict before the deadline. First correct solver wins.</p>",
+      "released_at": "2026-05-26T19:15:41.859Z"
+    }
+  ],
+  "codes": [
+    {
+      "id": 1,
+      "code": "DEMO12",
+      "case_id": 1,
+      "pack_type": "solo",
+      "used": true,
+      "used_by": "4g7NvgUPnTgQbnlYnjV_kuZdXDSMEpb1",
+      "used_at": "2026-05-22T19:17:04.389Z",
+      "created_at": "2026-05-22T19:15:41.868Z"
+    },
+    {
+      "id": 2,
+      "code": "TEST99",
+      "case_id": 1,
+      "pack_type": "solo",
+      "used": false,
+      "used_by": null,
+      "used_at": null,
+      "created_at": "2026-05-22T19:15:41.869Z"
+    },
+    {
+      "id": 3,
+      "code": "SQUAD1",
+      "case_id": 1,
+      "pack_type": "squad",
+      "used": false,
+      "used_by": null,
+      "used_at": null,
+      "created_at": "2026-05-22T19:15:41.870Z"
+    },
+    {
+      "id": 4,
+      "code": "FEQCAS",
+      "case_id": 1,
+      "pack_type": "solo",
+      "used": false,
+      "used_by": null,
+      "used_at": null,
+      "created_at": "2026-05-22T19:15:41.871Z"
+    },
+    {
+      "id": 5,
+      "code": "B4UE2R",
+      "case_id": 1,
+      "pack_type": "solo",
+      "used": false,
+      "used_by": null,
+      "used_at": null,
+      "created_at": "2026-05-22T19:15:41.872Z"
+    },
+    {
+      "id": 6,
+      "code": "9D4VT8",
+      "case_id": 1,
+      "pack_type": "solo",
+      "used": false,
+      "used_by": null,
+      "used_at": null,
+      "created_at": "2026-05-22T19:15:41.873Z"
+    },
+    {
+      "id": 7,
+      "code": "VP6NGW",
+      "case_id": 1,
+      "pack_type": "solo",
+      "used": false,
+      "used_by": null,
+      "used_at": null,
+      "created_at": "2026-05-22T19:15:41.873Z"
+    },
+    {
+      "id": 8,
+      "code": "KHXSAF",
+      "case_id": 1,
+      "pack_type": "solo",
+      "used": false,
+      "used_by": null,
+      "used_at": null,
+      "created_at": "2026-05-22T19:15:41.874Z"
+    }
+  ],
+  "unlocked": [
+    {
+      "id": 1,
+      "session_id": "4g7NvgUPnTgQbnlYnjV_kuZdXDSMEpb1",
+      "case_id": 1,
+      "code_id": 1,
+      "detective_name": null,
+      "unlocked_at": "2026-05-22T19:17:04.391Z"
+    }
+  ],
+  "verdicts": [],
+  "admins": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "$2a$10$Bh/akFsdi1s8cdtM4GdReuhZy.XLn06cfPwsE5skSgB4OTe8NxMEa",
+      "created_at": "2026-05-22T19:15:41.857Z"
+    }
+  ],
+  "_seq": {
+    "cases": 2,
+    "suspects": 4,
+    "clues": 6,
+    "codes": 9,
+    "unlocked": 2,
+    "verdicts": 1,
+    "admins": 2
+  }
+}

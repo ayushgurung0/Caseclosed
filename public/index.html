@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseClosed — Nepal's Detective Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0a0a0a;--ink2:#111;--paper:#f5f0e8;--cream:#ede7d9;
+  --red:#c8382a;--red-dim:#8c2118;--gold:#c9942a;--muted:#6b6358;
+  --surface:#161616;--border:rgba(200,56,42,0.18);--max:1200px;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--ink);color:var(--paper);font-family:'Syne',sans-serif;overflow-x:hidden;}
+.wrap{width:100%;max-width:var(--max);margin:0 auto;padding:0 1.4rem;}
+@media(min-width:600px){.wrap{padding:0 2.5rem;}}
+@media(min-width:900px){.wrap{padding:0 4rem;}}
+.sec{padding:4rem 0;}
+@media(min-width:900px){.sec{padding:7rem 0;}}
+.label{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:0.6rem;margin-bottom:0.7rem;}
+.label::after{content:'';flex:1;height:1px;background:var(--border);}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,5vw,4rem);line-height:0.92;color:var(--paper);margin-bottom:1.8rem;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes drift{0%,100%{transform:rotate(-1.5deg) translateY(0);}50%{transform:rotate(-0.5deg) translateY(-12px);}}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,10,10,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.nav-inner{max-width:var(--max);margin:0 auto;padding:0 1.4rem;height:60px;display:flex;align-items:center;justify-content:space-between;}
+@media(min-width:600px){.nav-inner{padding:0 2.5rem;}}
+@media(min-width:900px){.nav-inner{padding:0 4rem;}}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.06em;color:var(--red);}
+.logo span{color:var(--paper);}
+.nav-links{display:none;gap:2rem;}
+@media(min-width:820px){.nav-links{display:flex;}}
+.nav-links a{font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;color:var(--muted);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--paper);}
+.btn-sm{background:var(--red);color:#fff;padding:0.45rem 1.1rem;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;border-radius:2px;text-decoration:none;transition:background 0.15s;white-space:nowrap;}
+.btn-sm:hover{background:var(--red-dim);}
+
+/* HERO */
+#hero{min-height:100svh;position:relative;overflow:hidden;padding-top:60px;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(200,56,42,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(200,56,42,0.05) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}
+.hero-inner{max-width:var(--max);margin:0 auto;padding:0 1.4rem;min-height:calc(100svh - 60px);display:grid;grid-template-columns:1fr;align-items:end;padding-bottom:3rem;gap:2rem;position:relative;z-index:2;}
+@media(min-width:600px){.hero-inner{padding:0 2.5rem 3rem;}}
+@media(min-width:820px){.hero-inner{grid-template-columns:1fr 420px;align-items:center;padding:0 4rem 3rem;}}
+@media(min-width:1100px){.hero-inner{grid-template-columns:1fr 480px;}}
+.hero-eyebrow{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--red);margin-bottom:1.2rem;display:flex;align-items:center;gap:0.6rem;}
+.hero-eyebrow::before{content:'';width:24px;height:1px;background:var(--red);}
+.hero-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,10vw,8.5rem);line-height:0.88;letter-spacing:0.02em;color:var(--paper);margin-bottom:1.2rem;}
+.hero-h1 .acc{color:var(--red);}
+.hero-sub{font-family:'DM Mono',monospace;font-size:0.82rem;color:var(--muted);line-height:1.75;border-left:2px solid var(--red);padding-left:0.9rem;margin-bottom:2rem;max-width:460px;}
+.hero-btns{display:flex;flex-direction:column;gap:0.8rem;}
+@media(min-width:480px){.hero-btns{flex-direction:row;align-items:center;}}
+.btn-main{background:var(--red);color:#fff;padding:1rem 2rem;font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;text-decoration:none;display:inline-block;text-align:center;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));transition:transform 0.15s,background 0.15s;}
+.btn-main:hover{transform:translateY(-2px);background:#d94235;}
+.btn-ghost-link{color:var(--muted);font-family:'DM Mono',monospace;font-size:0.75rem;text-decoration:none;letter-spacing:0.1em;transition:color 0.2s;}
+.btn-ghost-link:hover{color:var(--paper);}
+.hero-card{background:var(--paper);color:var(--ink);padding:1.8rem;box-shadow:6px 6px 0 var(--red);border-radius:2px;animation:drift 7s ease-in-out infinite;position:relative;}
+.hero-card::before{content:'CONFIDENTIAL';position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.2em;padding:2px 12px;}
+.hc-num{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:0.4rem;}
+.hc-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--ink);line-height:1;margin-bottom:0.9rem;}
+.hc-tags{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.9rem;}
+.hc-tag{font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--ink);color:var(--ink);border-radius:1px;}
+.hc-tag.r{border-color:var(--red);color:var(--red);}
+.hc-suspects{display:grid;grid-template-columns:repeat(3,1fr);gap:0.4rem;margin-bottom:0.9rem;}
+.hc-s{background:var(--cream);padding:0.5rem;text-align:center;border-radius:1px;}
+.hc-photo{width:38px;height:46px;background:var(--ink);margin:0 auto 0.3rem;border-radius:1px;position:relative;overflow:hidden;}
+.hc-photo::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(200,56,42,0.18) 2px,rgba(200,56,42,0.18) 4px);}
+.hc-sname{font-family:'DM Mono',monospace;font-size:0.5rem;color:var(--ink);}
+.hc-live{display:flex;align-items:center;gap:0.4rem;padding-top:0.8rem;border-top:1px dashed rgba(0,0,0,0.15);}
+.hc-dot{width:7px;height:7px;background:var(--red);border-radius:50%;animation:pulse 1.5s ease-in-out infinite;}
+.hc-cdtext{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);}
+.hc-cdtext strong{color:var(--red);}
+
+/* ACCESS */
+#access{background:var(--ink2);}
+.access-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.access-top{padding:1.4rem 1.8rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.case-num-label{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:0.3rem;}
+.case-main-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--paper);line-height:1;}
+.at-right{display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;}
+.live-pill{display:flex;align-items:center;gap:0.4rem;background:rgba(200,56,42,0.1);border:1px solid rgba(200,56,42,0.25);padding:0.3rem 0.9rem;border-radius:20px;font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--red);}
+.cd-big{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--paper);line-height:1;}
+.cd-label{font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--muted);}
+
+/* CODE GATE */
+.code-gate{padding:3rem 1.8rem;display:flex;flex-direction:column;align-items:center;gap:1.2rem;text-align:center;}
+@media(min-width:820px){.code-gate{padding:4rem 3rem;}}
+.gate-icon{font-size:3rem;}
+.gate-heading{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--paper);}
+.gate-sub{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);line-height:1.7;max-width:340px;}
+.code-row{display:flex;width:100%;max-width:420px;}
+.code-input{flex:1;background:#0d0d0d;border:1px solid rgba(107,99,88,0.3);border-right:none;color:var(--paper);padding:0.85rem 1rem;font-family:'DM Mono',monospace;font-size:1rem;letter-spacing:0.18em;text-transform:uppercase;outline:none;border-radius:2px 0 0 2px;transition:border-color 0.2s;}
+.code-input::placeholder{letter-spacing:0.08em;font-size:0.75rem;text-transform:none;color:var(--muted);}
+.code-input:focus{border-color:var(--red);}
+.code-btn{background:var(--red);color:#fff;padding:0 1.6rem;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.08em;cursor:pointer;border-radius:0 2px 2px 0;white-space:nowrap;transition:background 0.15s;}
+.code-btn:hover{background:var(--red-dim);}
+.code-btn:disabled{background:var(--muted);cursor:not-allowed;}
+.gate-error{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--red);display:none;}
+.gate-hint{font-family:'DM Mono',monospace;font-size:0.6rem;color:rgba(107,99,88,0.5);}
+.gate-buy{width:100%;max-width:420px;padding-top:1.5rem;border-top:1px solid rgba(107,99,88,0.15);display:flex;flex-direction:column;align-items:center;gap:0.8rem;}
+.gate-buy p{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);}
+
+/* CLUE BOARD */
+.clue-board{display:none;flex-direction:column;}
+.clue-board.active{display:flex;}
+.board-welcome{padding:1.2rem 1.8rem;background:rgba(200,56,42,0.07);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.8rem;}
+.bw-text{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--paper);line-height:1.5;}
+.bw-text span{color:var(--red);}
+.day-tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;}
+.day-tabs::-webkit-scrollbar{display:none;}
+.day-tab{flex-shrink:0;padding:0.9rem 1.3rem;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.day-tab:hover{color:var(--paper);}
+.day-tab.active-tab{color:var(--red);border-bottom-color:var(--red);}
+.day-tab.locked-tab{opacity:0.4;cursor:default;}
+.tab-new{display:inline-block;margin-left:0.4rem;background:var(--gold);color:#000;font-size:0.48rem;padding:1px 5px;border-radius:10px;vertical-align:middle;}
+.clue-panels{padding:1.8rem;}
+@media(min-width:820px){.clue-panels{padding:2.2rem 2.5rem;}}
+.clue-panel-item{display:none;}
+.clue-panel-item.active-panel{display:block;}
+.clue-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.4rem;}
+.badge{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.3rem 0.8rem;border-radius:1px;}
+.badge-open{background:rgba(200,56,42,0.12);color:var(--red);border:1px solid rgba(200,56,42,0.3);}
+.badge-new{background:rgba(201,148,42,0.12);color:var(--gold);border:1px solid rgba(201,148,42,0.3);}
+.clue-ts{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);}
+.clue-body{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--muted);line-height:1.9;}
+.clue-body p{margin-bottom:0.9rem;}
+.clue-body p:last-child{margin-bottom:0;}
+.clue-body strong{color:var(--paper);}
+.clue-body .hl{border-left:2px solid var(--red);padding-left:0.9rem;margin:1.1rem 0;color:var(--paper);}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin:1.1rem 0;}
+@media(min-width:640px){.detail-grid{grid-template-columns:repeat(3,1fr);}}
+.dc{background:#0d0d0d;padding:0.9rem 1rem;border-radius:2px;}
+.dc-l{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.3rem;}
+.dc-v{font-weight:700;font-size:0.84rem;color:var(--paper);}
+.suspects{display:flex;flex-direction:column;gap:0.8rem;margin:1rem 0;}
+@media(min-width:640px){.suspects{flex-direction:row;}}
+.sc{flex:1;background:#0d0d0d;padding:1rem 1.1rem;border-radius:2px;border-left:2px solid transparent;}
+.sc.prim{border-left-color:var(--red);}
+.sc-name{font-weight:700;font-size:0.88rem;color:var(--paper);margin-bottom:0.25rem;}
+.sc-role{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.6rem;}
+.sc-motive{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);line-height:1.5;}
+.locked-clue{text-align:center;padding:3rem 1rem;display:flex;flex-direction:column;align-items:center;gap:0.8rem;}
+.lc-icon{font-size:2rem;opacity:0.35;}
+.lc-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--muted);}
+.lc-sub{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);opacity:0.6;line-height:1.6;max-width:280px;}
+.lc-blur{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);line-height:1.75;filter:blur(5px);user-select:none;pointer-events:none;margin:0.8rem 0;max-width:360px;}
+
+/* VERDICT */
+#verdict{background:var(--ink);border-top:1px solid var(--border);}
+.verdict-inner{max-width:740px;}
+.verdict-note{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);line-height:1.7;padding:0.9rem 1rem;background:rgba(200,56,42,0.05);border-left:2px solid var(--red);margin-bottom:1.8rem;}
+.verdict-note strong{color:var(--red);}
+.form-2col{display:grid;grid-template-columns:1fr;gap:1rem;}
+@media(min-width:520px){.form-2col{grid-template-columns:1fr 1fr;}}
+.fg{display:flex;flex-direction:column;gap:0.45rem;margin-bottom:1rem;}
+.fl{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
+.fi,.fs,.fta{background:#111;border:1px solid rgba(107,99,88,0.28);color:var(--paper);padding:0.8rem 1rem;font-family:'DM Mono',monospace;font-size:0.8rem;border-radius:2px;outline:none;transition:border-color 0.2s;width:100%;appearance:none;-webkit-appearance:none;}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--red);}
+.fta{resize:vertical;min-height:100px;}
+.fs option{background:#111;}
+.btn-verdict{padding:1rem 3rem;background:var(--red);color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;border-radius:2px;transition:background 0.15s;margin-top:0.5rem;}
+.btn-verdict:hover{background:var(--red-dim);}
+.btn-verdict:disabled{background:var(--muted);cursor:not-allowed;}
+.form-msg{font-family:'DM Mono',monospace;font-size:0.7rem;padding:0.7rem 1rem;border-radius:2px;margin-top:0.5rem;display:none;}
+.form-msg.success{background:rgba(0,180,80,0.1);color:#4caf50;border:1px solid rgba(0,180,80,0.2);}
+.form-msg.error{background:rgba(200,56,42,0.1);color:var(--red);border:1px solid rgba(200,56,42,0.2);}
+
+/* LEADERBOARD */
+#leaderboard{background:var(--ink2);}
+.lb-grid{display:grid;grid-template-columns:1fr;gap:3rem;}
+@media(min-width:820px){.lb-grid{grid-template-columns:1fr 1.4fr;align-items:start;}}
+.lb-desc{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--muted);line-height:1.8;margin-top:1rem;max-width:380px;}
+.board{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.brd-head{background:rgba(200,56,42,0.08);padding:0.8rem 1.2rem;font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--red);display:grid;grid-template-columns:36px 40px 1fr 80px;gap:0.5rem;align-items:center;border-bottom:1px solid var(--border);}
+.brd-row{display:grid;grid-template-columns:36px 40px 1fr 80px;gap:0.5rem;align-items:center;padding:0.9rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.03);transition:background 0.15s;}
+.brd-row:last-child{border-bottom:none;}
+.brd-row:hover{background:rgba(255,255,255,0.02);}
+.b-rank{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--muted);}
+.b-rank.gold{color:var(--gold);}
+.b-rank.silver{color:#a8a8a8;}
+.b-rank.bronze{color:#b87333;}
+.b-av{width:34px;height:34px;border-radius:50%;background:rgba(200,56,42,0.15);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--red);}
+.b-name{font-weight:600;font-size:0.84rem;color:var(--paper);}
+.b-score{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:var(--red);text-align:right;}
+.board-empty{padding:2rem;text-align:center;font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);}
+
+/* HOW */
+#how{background:var(--paper);}
+#how .sec-title{color:var(--ink);}
+#how .label{color:var(--red);}
+#how .label::after{background:rgba(200,56,42,0.2);}
+.how-grid{display:grid;grid-template-columns:1fr;gap:0;position:relative;}
+@media(min-width:820px){.how-grid{grid-template-columns:repeat(5,1fr);}}
+@media(max-width:819px){.how-grid::before{content:'';position:absolute;left:19px;top:8px;bottom:8px;width:1px;background:repeating-linear-gradient(to bottom,var(--red) 0,var(--red) 5px,transparent 5px,transparent 11px);}}
+@media(min-width:820px){.how-grid::before{content:'';position:absolute;top:19px;left:40px;right:40px;height:1px;background:repeating-linear-gradient(to right,var(--red) 0,var(--red) 5px,transparent 5px,transparent 11px);}}
+.how-step{display:flex;gap:1.2rem;padding:1rem 0;position:relative;z-index:1;}
+@media(min-width:820px){.how-step{flex-direction:column;align-items:center;text-align:center;gap:1rem;padding:0 0.5rem;}}
+.step-num{width:38px;height:38px;flex-shrink:0;background:var(--ink);color:var(--paper);font-family:'Bebas Neue',sans-serif;font-size:1rem;display:flex;align-items:center;justify-content:center;border-radius:2px;position:relative;z-index:1;}
+.step-num.active{background:var(--red);}
+.step-name{font-weight:700;font-size:0.9rem;color:var(--ink);margin-bottom:0.3rem;}
+.step-desc{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);line-height:1.6;}
+
+/* PRIZE */
+#prize{background:var(--red);position:relative;overflow:hidden;}
+.prize-inner{display:grid;grid-template-columns:1fr;gap:2.5rem;}
+@media(min-width:820px){.prize-inner{grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}}
+#prize::before{content:'5×';position:absolute;font-family:'Bebas Neue',sans-serif;font-size:24rem;color:rgba(255,255,255,0.05);right:-1rem;bottom:-3rem;line-height:1;pointer-events:none;}
+.prize-label{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:0.7rem;display:flex;align-items:center;gap:0.6rem;}
+.prize-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.2);}
+.prize-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,5rem);color:#fff;line-height:0.9;margin-bottom:1.2rem;}
+.prize-body{font-family:'DM Mono',monospace;font-size:0.8rem;color:rgba(255,255,255,0.75);line-height:1.8;}
+.prize-card{background:rgba(0,0,0,0.22);border:1px solid rgba(255,255,255,0.15);padding:2rem;border-radius:4px;position:relative;z-index:1;}
+.prize-amount{font-family:'Bebas Neue',sans-serif;font-size:4rem;color:#fff;line-height:1;}
+.prize-amount small{font-family:'DM Mono',monospace;font-size:0.72rem;color:rgba(255,255,255,0.6);letter-spacing:0.08em;display:block;margin-bottom:0.2rem;}
+.perks{margin-top:1.4rem;display:flex;flex-direction:column;gap:0.55rem;}
+.perk{display:flex;align-items:center;gap:0.7rem;font-family:'DM Mono',monospace;font-size:0.73rem;color:rgba(255,255,255,0.85);}
+.perk::before{content:'✓';color:#fff;font-weight:bold;flex-shrink:0;}
+
+/* PRICING */
+#pricing{background:var(--cream);}
+#pricing .sec-title{color:var(--ink);}
+#pricing .label{color:var(--red);}
+#pricing .label::after{background:rgba(200,56,42,0.2);}
+.plans{display:grid;grid-template-columns:1fr;gap:1.2rem;}
+@media(min-width:640px){.plans{grid-template-columns:1fr 1fr;}}
+@media(min-width:900px){.plans{grid-template-columns:repeat(3,1fr);}}
+.plan{background:var(--paper);border:1px solid rgba(0,0,0,0.1);padding:2rem 1.8rem;border-radius:2px;position:relative;transition:transform 0.2s;display:flex;flex-direction:column;}
+.plan:hover{transform:translateY(-4px);}
+.plan.feat{border-color:var(--red);box-shadow:4px 4px 0 var(--red);}
+.plan.feat::before{content:'MOST POPULAR';position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.15em;padding:2px 10px;}
+.plan-name{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:0.7rem;}
+.plan-price{font-family:'Bebas Neue',sans-serif;font-size:3rem;color:var(--ink);line-height:1;margin-bottom:0.2rem;}
+.plan-price small{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);}
+.plan-desc{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);line-height:1.6;margin:0.9rem 0 1.2rem;padding-bottom:1.2rem;border-bottom:1px dashed rgba(0,0,0,0.12);}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.8rem;flex:1;}
+.plan-feats li{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--ink);display:flex;gap:0.5rem;align-items:flex-start;}
+.plan-feats li::before{content:'—';color:var(--red);flex-shrink:0;}
+.btn-plan{display:block;width:100%;padding:0.9rem;font-family:'Syne',sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all 0.15s;text-align:center;text-decoration:none;margin-top:auto;}
+.btn-ghost-plan{background:transparent;border:1px solid var(--ink);color:var(--ink);}
+.btn-ghost-plan:hover{background:var(--ink);color:var(--paper);}
+.btn-red-plan{background:var(--red);border:1px solid var(--red);color:#fff;}
+.btn-red-plan:hover{background:var(--red-dim);}
+
+/* FOOTER */
+footer{background:#050505;border-top:1px solid rgba(200,56,42,0.1);}
+.footer-inner{max-width:var(--max);margin:0 auto;padding:2.5rem 1.4rem;display:flex;flex-direction:column;gap:1.5rem;}
+@media(min-width:600px){.footer-inner{padding:2.5rem 2.5rem;flex-direction:row;justify-content:space-between;align-items:center;flex-wrap:wrap;}}
+@media(min-width:900px){.footer-inner{padding:2.5rem 4rem;}}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--red);}
+.footer-logo span{color:var(--muted);}
+.footer-links{display:flex;flex-wrap:wrap;gap:0.8rem 1.5rem;}
+.footer-links a{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);text-decoration:none;letter-spacing:0.08em;transition:color 0.2s;}
+.footer-links a:hover{color:var(--paper);}
+.footer-copy{font-family:'DM Mono',monospace;font-size:0.58rem;color:rgba(107,99,88,0.4);}
+
+/* NO ACTIVE CASE */
+.no-case{padding:4rem 2rem;text-align:center;}
+.no-case p{font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted);line-height:1.8;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Case<span>Closed</span></div>
+    <div class="nav-links">
+      <a href="#access">Active Case</a>
+      <a href="#verdict">Submit Verdict</a>
+      <a href="#leaderboard">Leaderboard</a>
+      <a href="#how">How It Works</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.8rem;">
+      <a href="#pricing" class="btn-sm">Get the Kit</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Nepal's First Detective Game</div>
+      <h1 class="hero-h1">CRACK<br>THE <span class="acc">CASE.</span><br>WIN FOR<br>REAL.</h1>
+      <p class="hero-sub">Physical evidence kit + digital clues drop daily. Solve it first. Win 5× your money back.</p>
+      <div class="hero-btns">
+        <a href="#access" class="btn-main">See This Week's Case</a>
+        <a href="#how" class="btn-ghost-link">How it works →</a>
+      </div>
+    </div>
+    <div id="hero-card-wrap">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- CASE ACCESS -->
+<section id="access" style="background:var(--ink2);">
+  <div class="wrap sec">
+    <div class="label">Active Case</div>
+    <h2 class="sec-title">YOUR CASE FILE</h2>
+    <div class="access-card" id="access-card">
+      <div style="padding:3rem;text-align:center;">
+        <p style="font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted);">Loading case…</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VERDICT -->
+<section id="verdict" style="background:var(--ink);border-top:1px solid var(--border);">
+  <div class="wrap sec">
+    <div class="verdict-inner">
+      <div class="label">Submit Answer</div>
+      <h2 class="sec-title">FILE YOUR VERDICT</h2>
+      <div class="verdict-note"><strong>⚡ First correct submission wins the prize</strong> — 5× the case cost. All verdicts timestamped on submission. Results revealed when the case closes.</div>
+      <div class="form-2col">
+        <div class="fg"><label class="fl">Your Name / Alias</label><input class="fi" id="v-name" type="text" placeholder="Detective name"></div>
+        <div class="fg"><label class="fl">Phone or Email</label><input class="fi" id="v-contact" type="text" placeholder="For prize contact"></div>
+      </div>
+      <div class="fg"><label class="fl">The Killer Is</label>
+        <select class="fs" id="v-suspect"><option value="">— Select your suspect —</option></select>
+      </div>
+      <div class="fg"><label class="fl">Your Reasoning</label><textarea class="fta" id="v-reason" placeholder="Walk through your logic. Cite the clues."></textarea></div>
+      <button class="btn-verdict" id="v-submit" onclick="submitVerdict()">Submit Verdict →</button>
+      <div class="form-msg" id="v-msg"></div>
+    </div>
+  </div>
+</section>
+
+<!-- LEADERBOARD -->
+<section id="leaderboard" style="background:var(--ink2);">
+  <div class="wrap sec">
+    <div class="lb-grid">
+      <div>
+        <div class="label">Hall of Detectives</div>
+        <h2 class="sec-title">TOP SOLVERS</h2>
+        <p class="lb-desc">Every correct verdict earns points. Faster solvers score higher. Best detective of the month wins the grand prize.</p>
+      </div>
+      <div class="board">
+        <div class="brd-head"><span>#</span><span></span><span>Detective</span><span style="text-align:right;">Pts</span></div>
+        <div id="leaderboard-rows"><div class="board-empty">No solvers yet. Be the first.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how" style="background:var(--paper);">
+  <div class="wrap sec">
+    <div class="label">The Process</div>
+    <h2 class="sec-title" style="color:var(--ink);">HOW THE GAME WORKS</h2>
+    <div class="how-grid">
+      <div class="how-step"><div class="step-num active">1</div><div><div class="step-name">Buy the Kit</div><div class="step-desc">Order online. Physical evidence envelope delivered — case file, dossiers, CCTV prints, weapon prop, and your unique unlock code.</div></div></div>
+      <div class="how-step"><div class="step-num">2</div><div><div class="step-name">Enter Your Code</div><div class="step-desc">Find the code inside your envelope. Enter it on this site to unlock your full digital case board.</div></div></div>
+      <div class="how-step"><div class="step-num">3</div><div><div class="step-name">Follow the Clues</div><div class="step-desc">New digital clues drop daily — Day 2 news, Day 3 interview, Day 4 court hearing. Each changes the picture.</div></div></div>
+      <div class="how-step"><div class="step-num">4</div><div><div class="step-name">Submit Verdict</div><div class="step-desc">Name the killer, explain your reasoning. First correct solver wins 5× the case cost — real money.</div></div></div>
+      <div class="how-step"><div class="step-num active">5</div><div><div class="step-name">New Case Weekly</div><div class="step-desc">Sunday night the answer drops. Monday a new case starts. Build your rank on the leaderboard.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIZE -->
+<section id="prize" style="background:var(--red);">
+  <div class="wrap sec">
+    <div class="prize-inner">
+      <div>
+        <div class="prize-label">Win Real Money</div>
+        <h2 class="prize-title">SOLVE FIRST.<br>WIN BIG.</h2>
+        <p class="prize-body">Real stakes. First correct solver wins 5× the case cost — cash, straight to you. Stack partner vouchers on top.</p>
+      </div>
+      <div class="prize-card">
+        <div class="prize-amount"><small>First solver wins</small><span id="prize-amount">Rs. 3,000</span></div>
+        <div class="perks">
+          <div class="perk">Cash prize — 5× case cost</div>
+          <div class="perk">Partner discount vouchers</div>
+          <div class="perk">Featured on leaderboard</div>
+          <div class="perk">Detective of the Week badge</div>
+          <div class="perk">Early access to next case</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="background:var(--cream);">
+  <div class="wrap sec">
+    <div class="label">Pick Your Play</div>
+    <h2 class="sec-title" style="color:var(--ink);">GET THE KIT</h2>
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Solo Detective</div>
+        <div class="plan-price">Rs. 600 <small>/ case</small></div>
+        <div class="plan-desc">One case, one week. Pay per case, no commitment.</div>
+        <ul class="plan-feats"><li>Full physical evidence kit</li><li>Unique unlock code inside</li><li>All digital clues unlocked</li><li>Eligible for 5× prize</li></ul>
+        <a href="#" class="btn-plan btn-ghost-plan">Buy This Case</a>
+      </div>
+      <div class="plan feat">
+        <div class="plan-name">Squad Pack</div>
+        <div class="plan-price">Rs. 900 <small>/ case</small></div>
+        <div class="plan-desc">One kit, up to 4 friends. Cheaper per head, way more fun.</div>
+        <ul class="plan-feats"><li>Full physical evidence kit</li><li>4 individual unlock accounts</li><li>Shared clue access for all</li><li>Squad leaderboard ranking</li><li>Prize goes to first correct solver</li></ul>
+        <a href="#" class="btn-plan btn-red-plan">Get Squad Pack</a>
+      </div>
+      <div class="plan">
+        <div class="plan-name">Monthly Pass</div>
+        <div class="plan-price">Rs. 999 <small>/ month</small></div>
+        <div class="plan-desc">2 cases per month, auto-delivered. Best value.</div>
+        <ul class="plan-feats"><li>2 cases per month</li><li>Priority delivery</li><li>Subscriber-only bonus clue</li><li>Monthly grand prize eligible</li><li>Cancel anytime</li></ul>
+        <a href="#" class="btn-plan btn-ghost-plan">Subscribe</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Case<span>Closed</span></div>
+    <div class="footer-links">
+      <a href="#">Instagram</a><a href="#">TikTok</a>
+      <a href="#">Past Cases</a><a href="#">Winners</a>
+      <a href="#">FAQ</a><a href="#" onclick="location.href='/admin'">Admin</a>
+    </div>
+    <div class="footer-copy">© 2025 CaseClosed Nepal. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+let activeCaseId = null;
+let cluesData = [];
+
+// ── INIT ──────────────────────────────────────────────
+async function init() {
+  await loadActiveCase();
+  await loadLeaderboard();
+}
+
+// ── LOAD ACTIVE CASE ─────────────────────────────────
+async function loadActiveCase() {
+  const res = await fetch('/api/active-case');
+  const { case: c } = await res.json();
+  if (!c) {
+    document.getElementById('access-card').innerHTML = '<div class="no-case"><p>No active case this week.<br>New case drops Monday. Follow us on Instagram for updates.</p></div>';
+    renderHeroCard(null);
+    return;
+  }
+  activeCaseId = c.id;
+  renderHeroCard(c);
+  renderAccessCard(c);
+  populateSuspectSelect(c.suspects);
+  if (c.prize_amount) document.getElementById('prize-amount').textContent = 'Rs. ' + c.prize_amount.toLocaleString();
+  startCountdown(c.closes_at);
+}
+
+function renderHeroCard(c) {
+  const wrap = document.getElementById('hero-card-wrap');
+  if (!c) { wrap.innerHTML = ''; return; }
+  const suspects = (c.suspects || []).slice(0, 3);
+  wrap.innerHTML = `
+    <div class="hero-card">
+      <div class="hc-num">${c.case_number} — ${c.location}</div>
+      <div class="hc-title">${c.title}</div>
+      <div class="hc-tags">
+        <span class="hc-tag r">● Active</span>
+        <span class="hc-tag">${suspects.length} Suspects</span>
+      </div>
+      <div class="hc-suspects">
+        ${suspects.map(s=>`<div class="hc-s"><div class="hc-photo"></div><div class="hc-sname">${s.name.split(' ')[0]}</div></div>`).join('')}
+      </div>
+      <div class="hc-live"><div class="hc-dot"></div><div class="hc-cdtext">Closes in <strong id="hero-cd">…</strong></div></div>
+    </div>`;
+}
+
+function renderAccessCard(c) {
+  const card = document.getElementById('access-card');
+  card.innerHTML = `
+    <div class="access-top">
+      <div>
+        <div class="case-num-label">${c.case_number} · ${c.location}</div>
+        <div class="case-main-title">${c.title}</div>
+      </div>
+      <div class="at-right">
+        <div class="live-pill"><div class="hc-dot"></div> Case Live</div>
+        <div class="cd-big" id="main-cd">…</div>
+        <div class="cd-label">Time remaining</div>
+      </div>
+    </div>
+    <div class="code-gate" id="code-gate">
+      <div class="gate-icon">🔐</div>
+      <div class="gate-heading">Enter Your Case Code</div>
+      <p class="gate-sub">Your physical kit has a unique code inside the evidence envelope. Enter it to unlock all clues.</p>
+      <div style="width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
+        <div class="code-row">
+          <input class="code-input" id="code-input" type="text" maxlength="12" placeholder="Enter your kit code" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <button class="code-btn" id="code-btn" onclick="unlockCase()">Unlock</button>
+        </div>
+        <div class="gate-error" id="gate-error"></div>
+        <div class="gate-hint">Code printed inside your evidence envelope · ${c.case_number}</div>
+      </div>
+      <div class="gate-buy">
+        <p>Don't have a kit yet?</p>
+        <a href="#pricing" class="btn-main" style="font-size:0.78rem;padding:0.8rem 1.8rem;">Get the Physical Kit →</a>
+      </div>
+    </div>
+    <div class="clue-board" id="clue-board"></div>`;
+  document.getElementById('code-input').addEventListener('keydown', e => { if (e.key === 'Enter') unlockCase(); });
+}
+
+function populateSuspectSelect(suspects) {
+  const sel = document.getElementById('v-suspect');
+  (suspects || []).forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.name;
+    opt.textContent = `${s.name} — ${s.role}`;
+    sel.appendChild(opt);
+  });
+}
+
+// ── COUNTDOWN ─────────────────────────────────────────
+function startCountdown(closesAt) {
+  function tick() {
+    const diff = new Date(closesAt) - new Date();
+    if (diff <= 0) { ['hero-cd','main-cd'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = 'CLOSED'; }); return; }
+    const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000);
+    const hEl = document.getElementById('hero-cd'), mEl = document.getElementById('main-cd');
+    if (hEl) hEl.textContent = `${d}d ${h}h ${m}m`;
+    if (mEl) mEl.textContent = `${d}D ${h}H ${m}M`;
+  }
+  tick();
+  setInterval(tick, 60000);
+}
+
+// ── UNLOCK ────────────────────────────────────────────
+async function unlockCase() {
+  const inp = document.getElementById('code-input');
+  const btn = document.getElementById('code-btn');
+  const err = document.getElementById('gate-error');
+  const code = inp.value.trim();
+  if (!code) { showError(err, 'Please enter your code.'); return; }
+  btn.disabled = true; btn.textContent = '…';
+  err.style.display = 'none';
+  try {
+    const res = await fetch('/api/unlock', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ code }) });
+    const data = await res.json();
+    if (!res.ok) { showError(err, data.error); btn.disabled=false; btn.textContent='Unlock'; return; }
+    await loadClues(data.case_id);
+  } catch(e) {
+    showError(err, 'Network error. Please try again.');
+    btn.disabled=false; btn.textContent='Unlock';
+  }
+}
+
+// ── LOAD CLUES ────────────────────────────────────────
+async function loadClues(caseId) {
+  const res = await fetch(`/api/clues/${caseId}`);
+  if (!res.ok) return;
+  const { clues, detective_name } = await res.json();
+  cluesData = clues;
+  document.getElementById('code-gate').style.display = 'none';
+  renderClueBoard(clues, detective_name, caseId);
+}
+
+function renderClueBoard(clues, detectiveName, caseId) {
+  const board = document.getElementById('clue-board');
+  const releasedCount = clues.filter(c => c.is_released).length;
+  board.innerHTML = `
+    <div class="board-welcome">
+      <span style="font-size:1.4rem;">🕵️</span>
+      <div class="bw-text">Unlocked as <span id="detective-display">${detectiveName || 'Detective'}</span> &nbsp;·&nbsp; <span>${releasedCount} of ${clues.length} clues available</span></div>
+    </div>
+    <div class="day-tabs" id="day-tabs">
+      ${clues.map((c,i) => `
+        <button class="day-tab ${i===0?'active-tab':''} ${!c.is_released?'locked-tab':''}" data-idx="${i}" onclick="showDay(${i},this)">
+          Day ${c.day_number} — ${c.title}${isNewToday(c.released_at)?'<span class="tab-new">New</span>':''}${!c.is_released?' 🔒':''}
+        </button>`).join('')}
+    </div>
+    <div class="clue-panels" id="clue-panels">
+      ${clues.map((c,i) => renderCluePanel(c, i)).join('')}
+    </div>`;
+  board.classList.add('active');
+  board.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderCluePanel(c, idx) {
+  const isFirst = idx === 0;
+  if (!c.is_released) {
+    const releaseDate = new Date(c.released_at);
+    return `<div class="clue-panel-item ${isFirst?'active-panel':''}" id="panel-${idx}">
+      <div class="locked-clue">
+        <div class="lc-icon">🔒</div>
+        <div class="lc-title">Unlocks ${releaseDate.toLocaleDateString('en-NP', {weekday:'long', month:'short', day:'numeric'})}</div>
+        <div class="lc-sub">This clue releases automatically. Check back then.</div>
+        <div class="lc-blur">The evidence points in an unexpected direction. Alibis are being questioned. The timeline has a gap no one can explain. When this document drops, everything you thought you knew will be tested.</div>
+      </div></div>`;
+  }
+  const isNew = isNewToday(c.released_at);
+  return `<div class="clue-panel-item ${isFirst?'active-panel':''}" id="panel-${idx}">
+    <div class="clue-meta">
+      <span class="badge ${isNew?'badge-new':'badge-open'}">${c.clue_type.replace('_',' ')} · Day ${c.day_number}</span>
+      <span class="clue-ts">Released ${new Date(c.released_at).toLocaleString('en-NP',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
+    </div>
+    <div class="clue-body">${c.content}</div>
+  </div>`;
+}
+
+function isNewToday(releasedAt) {
+  const r = new Date(releasedAt), n = new Date();
+  return r.toDateString() === n.toDateString();
+}
+
+function showDay(idx, btn) {
+  document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active-tab'));
+  document.querySelectorAll('.clue-panel-item').forEach(p => p.classList.remove('active-panel'));
+  btn.classList.add('active-tab');
+  document.getElementById('panel-' + idx).classList.add('active-panel');
+}
+
+// ── VERDICT ───────────────────────────────────────────
+async function submitVerdict() {
+  const name    = document.getElementById('v-name').value.trim();
+  const contact = document.getElementById('v-contact').value.trim();
+  const suspect = document.getElementById('v-suspect').value;
+  const reason  = document.getElementById('v-reason').value.trim();
+  const msg     = document.getElementById('v-msg');
+  const btn     = document.getElementById('v-submit');
+  if (!name || !contact || !suspect || !reason) { showMsg(msg, 'All fields are required.', 'error'); return; }
+  if (!activeCaseId) { showMsg(msg, 'No active case found.', 'error'); return; }
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    const res = await fetch('/api/verdict', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ case_id: activeCaseId, detective_name: name, contact, suspect_name: suspect, reasoning: reason }) });
+    const data = await res.json();
+    if (res.ok) {
+      showMsg(msg, '✓ Verdict submitted! Results revealed when the case closes.', 'success');
+      btn.textContent = 'Verdict Submitted ✓';
+    } else {
+      showMsg(msg, data.error, 'error');
+      btn.disabled=false; btn.textContent='Submit Verdict →';
+    }
+  } catch(e) {
+    showMsg(msg, 'Network error. Try again.', 'error');
+    btn.disabled=false; btn.textContent='Submit Verdict →';
+  }
+}
+
+// ── LEADERBOARD ───────────────────────────────────────
+async function loadLeaderboard() {
+  const res = await fetch('/api/leaderboard');
+  const { leaderboard } = await res.json();
+  const container = document.getElementById('leaderboard-rows');
+  if (!leaderboard.length) { container.innerHTML = '<div class="board-empty">No solvers yet. Be the first.</div>'; return; }
+  const rankClass = ['gold','silver','bronze'];
+  container.innerHTML = leaderboard.map((r,i) => `
+    <div class="brd-row">
+      <div class="b-rank ${rankClass[i]||''}">${i+1}</div>
+      <div class="b-av">${r.detective_name.slice(0,2).toUpperCase()}</div>
+      <div class="b-name">${r.detective_name}</div>
+      <div class="b-score">${r.points}</div>
+    </div>`).join('');
+}
+
+// ── UTILS ─────────────────────────────────────────────
+function showError(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+function showMsg(el, msg, type) { el.textContent = msg; el.className = 'form-msg ' + type; el.style.display = 'block'; }
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseClosed — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0a0a0a;--ink2:#111;--surface:#161616;--surface2:#1e1e1e;
+  --paper:#f5f0e8;--red:#c8382a;--red-dim:#8c2118;--gold:#c9942a;
+  --muted:#6b6358;--border:rgba(255,255,255,0.08);--green:#2d8c4e;
+}
+body{background:var(--ink2);color:var(--paper);font-family:'Syne',sans-serif;min-height:100vh;}
+
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3rem 2.5rem;width:100%;max-width:380px;}
+.login-logo{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--red);margin-bottom:0.3rem;}
+.login-sub{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:2rem;}
+.login-card h2{font-size:1.4rem;margin-bottom:1.5rem;}
+.lf{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;}
+.ll{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
+.li{background:#0d0d0d;border:1px solid rgba(107,99,88,0.3);color:var(--paper);padding:0.75rem 1rem;font-family:'DM Mono',monospace;font-size:0.85rem;border-radius:3px;outline:none;width:100%;transition:border-color 0.2s;}
+.li:focus{border-color:var(--red);}
+.login-btn{width:100%;padding:0.85rem;background:var(--red);color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;border-radius:3px;margin-top:0.5rem;transition:background 0.15s;}
+.login-btn:hover{background:var(--red-dim);}
+.login-err{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--red);display:none;margin-top:0.5rem;}
+
+/* MAIN LAYOUT */
+#app{display:none;}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;}
+@media(max-width:768px){.sidebar{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border);}}
+.sidebar-logo{padding:1.2rem 1.4rem;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--red);border-bottom:1px solid var(--border);flex-shrink:0;}
+.sidebar-logo span{color:var(--muted);font-size:0.65rem;font-weight:400;display:block;font-family:'DM Mono',monospace;}
+@media(max-width:768px){.sidebar-logo{display:none;}}
+.nav-item{display:flex;align-items:center;gap:0.7rem;padding:0.8rem 1.4rem;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.08em;color:var(--muted);cursor:pointer;transition:all 0.15s;border:none;background:none;text-align:left;white-space:nowrap;}
+.nav-item:hover{color:var(--paper);background:rgba(255,255,255,0.03);}
+.nav-item.active{color:var(--red);background:rgba(200,56,42,0.08);}
+.nav-item .ni{font-size:1rem;}
+.sidebar-bottom{margin-top:auto;padding:1rem;border-top:1px solid var(--border);}
+@media(max-width:768px){.sidebar-bottom{display:none;}}
+.logout-btn{width:100%;padding:0.6rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:0.65rem;cursor:pointer;border-radius:3px;transition:all 0.15s;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+.main{margin-left:220px;padding:2rem;min-height:100vh;}
+@media(max-width:768px){.main{margin-left:0;padding:1.2rem;}}
+.page{display:none;}
+.page.active{display:block;}
+
+/* COMPONENTS */
+.page-title{font-size:1.6rem;font-weight:700;margin-bottom:0.3rem;}
+.page-sub{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);margin-bottom:2rem;}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:2.5rem;}
+@media(min-width:640px){.stats-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:900px){.stats-grid{grid-template-columns:repeat(6,1fr);}}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1.2rem;}
+.stat-label{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;}
+.stat-val{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;color:var(--paper);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:1.5rem;}
+.card-header{padding:1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;}
+.card-title{font-weight:600;font-size:0.92rem;}
+.card-body{padding:1.4rem;}
+table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:0.7rem;}
+th{padding:0.6rem 0.8rem;text-align:left;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;font-size:0.6rem;border-bottom:1px solid var(--border);}
+td{padding:0.7rem 0.8rem;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+.tbl-wrap{overflow-x:auto;}
+.badge{display:inline-block;padding:2px 8px;border-radius:2px;font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;}
+.badge-active{background:rgba(45,140,78,0.15);color:#4caf50;border:1px solid rgba(45,140,78,0.25);}
+.badge-upcoming{background:rgba(201,148,42,0.15);color:var(--gold);border:1px solid rgba(201,148,42,0.25);}
+.badge-closed{background:rgba(107,99,88,0.15);color:var(--muted);border:1px solid rgba(107,99,88,0.25);}
+.badge-used{background:rgba(200,56,42,0.15);color:var(--red);border:1px solid rgba(200,56,42,0.25);}
+.badge-unused{background:rgba(45,140,78,0.15);color:#4caf50;border:1px solid rgba(45,140,78,0.25);}
+.btn{padding:0.45rem 0.9rem;font-family:'Syne',sans-serif;font-weight:600;font-size:0.72rem;letter-spacing:0.06em;cursor:pointer;border-radius:3px;transition:all 0.15s;border:none;white-space:nowrap;}
+.btn-red{background:var(--red);color:#fff;}
+.btn-red:hover{background:var(--red-dim);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.btn-outline:hover{border-color:var(--paper);color:var(--paper);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-green:hover{background:#226b3a;}
+.btn-danger{background:transparent;border:1px solid rgba(200,56,42,0.3);color:var(--red);font-size:0.65rem;padding:0.3rem 0.7rem;}
+.btn-danger:hover{background:rgba(200,56,42,0.1);}
+.btn-sm-outline{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:0.65rem;padding:0.3rem 0.7rem;}
+.btn-sm-outline:hover{color:var(--paper);border-color:var(--paper);}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:1fr;gap:1rem;}
+@media(min-width:640px){.form-grid{grid-template-columns:1fr 1fr;}}
+.fg{display:flex;flex-direction:column;gap:0.4rem;}
+.fg.full{grid-column:1/-1;}
+.fl{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+.fi,.fs,.fta{background:#0d0d0d;border:1px solid rgba(107,99,88,0.3);color:var(--paper);padding:0.7rem 0.9rem;font-family:'DM Mono',monospace;font-size:0.78rem;border-radius:3px;outline:none;transition:border-color 0.2s;width:100%;appearance:none;}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--red);}
+.fta{resize:vertical;min-height:80px;}
+.fs option{background:#111;}
+.form-actions{display:flex;gap:0.8rem;margin-top:1.2rem;flex-wrap:wrap;}
+.form-msg{font-family:'DM Mono',monospace;font-size:0.68rem;padding:0.6rem 0.8rem;border-radius:3px;display:none;margin-top:0.5rem;}
+.form-msg.s{background:rgba(45,140,78,0.1);color:#4caf50;border:1px solid rgba(45,140,78,0.2);}
+.form-msg.e{background:rgba(200,56,42,0.1);color:var(--red);border:1px solid rgba(200,56,42,0.2);}
+
+/* CODE DISPLAY */
+.code-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.6rem;margin-top:1rem;}
+.code-chip{background:#0d0d0d;border:1px solid var(--border);border-radius:3px;padding:0.6rem 0.8rem;font-family:'DM Mono',monospace;font-size:0.78rem;letter-spacing:0.1em;cursor:pointer;transition:border-color 0.15s;display:flex;justify-content:space-between;align-items:center;}
+.code-chip:hover{border-color:var(--red);}
+.copy-hint{font-size:0.55rem;color:var(--muted);}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:6px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-weight:700;font-size:1rem;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0.2rem;}
+.modal-close:hover{color:var(--paper);}
+.modal-body{padding:1.5rem;}
+
+/* VERDICTS */
+.verdict-row{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1rem 1.2rem;margin-bottom:0.8rem;}
+.vr-top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:0.6rem;}
+.vr-name{font-weight:600;font-size:0.9rem;}
+.vr-time{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);}
+.vr-suspect{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--red);margin-bottom:0.4rem;}
+.vr-reason{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);line-height:1.6;margin-bottom:0.8rem;}
+.vr-actions{display:flex;gap:0.6rem;}
+.empty-state{padding:3rem;text-align:center;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">CaseClosed</div>
+    <div class="login-sub">Admin Panel</div>
+    <h2>Sign In</h2>
+    <div class="lf"><label class="ll">Username</label><input class="li" id="l-user" type="text" placeholder="admin" autocomplete="username"></div>
+    <div class="lf"><label class="ll">Password</label><input class="li" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="l-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">CaseClosed <span>Admin Panel</span></div>
+    <button class="nav-item active" onclick="showPage('dashboard')"><span class="ni">📊</span> Dashboard</button>
+    <button class="nav-item" onclick="showPage('cases')"><span class="ni">📁</span> Cases</button>
+    <button class="nav-item" onclick="showPage('codes')"><span class="ni">🔑</span> Codes</button>
+    <button class="nav-item" onclick="showPage('verdicts')"><span class="ni">⚖️</span> Verdicts</button>
+    <div class="sidebar-bottom">
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Overview of CaseClosed activity</div>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Cases</div><div class="stat-val" id="s-cases">—</div></div>
+        <div class="stat-card"><div class="stat-label">Active Cases</div><div class="stat-val" id="s-active">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Codes</div><div class="stat-val" id="s-codes">—</div></div>
+        <div class="stat-card"><div class="stat-label">Used Codes</div><div class="stat-val" id="s-used">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Unlocks</div><div class="stat-val" id="s-unlocks">—</div></div>
+        <div class="stat-card"><div class="stat-label">Verdicts</div><div class="stat-val" id="s-verdicts">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Quick Links</div></div>
+        <div class="card-body" style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+          <button class="btn btn-red" onclick="showPage('cases')">Manage Cases</button>
+          <button class="btn btn-outline" onclick="showPage('codes')">Generate Codes</button>
+          <button class="btn btn-outline" onclick="showPage('verdicts')">Review Verdicts</button>
+          <a href="/" target="_blank" class="btn btn-outline" style="text-decoration:none;">View Site ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASES -->
+    <div class="page" id="page-cases">
+      <div class="page-title">Cases</div>
+      <div class="page-sub">Create and manage mystery cases</div>
+
+      <!-- New case form -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">New Case</div></div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="fg"><label class="fl">Case Number</label><input class="fi" id="nc-num" type="text" placeholder="CC-025"></div>
+            <div class="fg"><label class="fl">Title</label><input class="fi" id="nc-title" type="text" placeholder="The Thamel Murder"></div>
+            <div class="fg"><label class="fl">Location</label><input class="fi" id="nc-loc" type="text" placeholder="Thamel, Kathmandu" value="Kathmandu"></div>
+            <div class="fg"><label class="fl">Status</label>
+              <select class="fs" id="nc-status"><option value="upcoming">Upcoming</option><option value="active">Active</option><option value="closed">Closed</option></select>
+            </div>
+            <div class="fg"><label class="fl">Prize Amount (Rs.)</label><input class="fi" id="nc-prize" type="number" value="3000"></div>
+            <div class="fg"><label class="fl">Closes At</label><input class="fi" id="nc-closes" type="datetime-local"></div>
+            <div class="fg full"><label class="fl">Summary</label><textarea class="fta" id="nc-summary" placeholder="Brief case description shown to all visitors..."></textarea></div>
+            <div class="fg"><label class="fl">Answer (killer name, hidden until close)</label><input class="fi" id="nc-answer" type="text" placeholder="Rajan Maharjan"></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-red" onclick="createCase()">Create Case</button>
+          </div>
+          <div class="form-msg" id="nc-msg"></div>
+        </div>
+      </div>
+
+      <!-- Cases list -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">All Cases</div><button class="btn btn-outline" onclick="loadCases()">Refresh</button></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Case #</th><th>Title</th><th>Status</th><th>Closes</th><th>Prize</th><th>Actions</th></tr></thead>
+          <tbody id="cases-tbody"><tr><td colspan="6" style="color:var(--muted);text-align:center;padding:2rem;">Loading…</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- CODES -->
+    <div class="page" id="page-codes">
+      <div class="page-title">Access Codes</div>
+      <div class="page-sub">Generate codes to include in physical kits</div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Generate Codes</div></div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="fg"><label class="fl">Case</label>
+              <select class="fs" id="gc-case"><option value="">Select a case…</option></select>
+            </div>
+            <div class="fg"><label class="fl">Pack Type</label>
+              <select class="fs" id="gc-type"><option value="solo">Solo</option><option value="squad">Squad (multi-use)</option><option value="monthly">Monthly</option></select>
+            </div>
+            <div class="fg"><label class="fl">Number of Codes</label><input class="fi" id="gc-count" type="number" value="10" min="1" max="200"></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-red" onclick="generateCodes()">Generate Codes</button>
+          </div>
+          <div class="form-msg" id="gc-msg"></div>
+          <div id="generated-codes"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">All Codes</div>
+          <div style="display:flex;gap:0.8rem;align-items:center;">
+            <select class="fs" id="filter-case" style="width:auto;font-size:0.7rem;padding:0.4rem 0.7rem;" onchange="loadCodes()">
+              <option value="">All cases</option>
+            </select>
+            <button class="btn btn-outline" onclick="loadCodes()">Refresh</button>
+          </div>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Code</th><th>Case</th><th>Type</th><th>Status</th><th>Used At</th><th>Actions</th></tr></thead>
+          <tbody id="codes-tbody"><tr><td colspan="6" style="color:var(--muted);text-align:center;padding:2rem;">Loading…</td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- VERDICTS -->
+    <div class="page" id="page-verdicts">
+      <div class="page-title">Verdicts</div>
+      <div class="page-sub">Review and mark submissions correct or incorrect</div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Submissions</div>
+          <div style="display:flex;gap:0.8rem;align-items:center;">
+            <select class="fs" id="filter-verdict-case" style="width:auto;font-size:0.7rem;padding:0.4rem 0.7rem;" onchange="loadVerdicts()">
+              <option value="">All cases</option>
+            </select>
+            <button class="btn btn-outline" onclick="loadVerdicts()">Refresh</button>
+          </div>
+        </div>
+        <div class="card-body" id="verdicts-list"><div class="empty-state">Loading…</div></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- CASE DETAIL MODAL -->
+<div class="modal-bg" id="case-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-case-title">Case Details</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-case-body"></div>
+  </div>
+</div>
+
+<script>
+let allCases = [];
+
+// ── AUTH ──────────────────────────────────────────────
+async function doLogin() {
+  const user = document.getElementById('l-user').value;
+  const pass = document.getElementById('l-pass').value;
+  const err  = document.getElementById('l-err');
+  err.style.display='none';
+  const res = await fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:user,password:pass}) });
+  const data = await res.json();
+  if (res.ok) { showApp(); }
+  else { err.textContent=data.error; err.style.display='block'; }
+}
+document.getElementById('l-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+async function doLogout() {
+  await fetch('/api/admin/logout', { method:'POST' });
+  location.reload();
+}
+
+async function checkAuth() {
+  const res = await fetch('/api/admin/me');
+  if (res.ok) showApp();
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  loadStats(); loadCases(); loadCasesForSelect();
+}
+
+// ── NAVIGATION ────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if(name==='codes') loadCodes();
+  if(name==='verdicts') loadVerdicts();
+}
+
+// ── STATS ─────────────────────────────────────────────
+async function loadStats() {
+  const res = await fetch('/api/admin/stats');
+  const s = await res.json();
+  document.getElementById('s-cases').textContent   = s.total_cases;
+  document.getElementById('s-active').textContent  = s.active_cases;
+  document.getElementById('s-codes').textContent   = s.total_codes;
+  document.getElementById('s-used').textContent    = s.used_codes;
+  document.getElementById('s-unlocks').textContent = s.total_unlocks;
+  document.getElementById('s-verdicts').textContent= s.total_verdicts;
+}
+
+// ── CASES ─────────────────────────────────────────────
+async function loadCases() {
+  const res = await fetch('/api/admin/cases');
+  const {cases} = await res.json();
+  allCases = cases;
+  const tbody = document.getElementById('cases-tbody');
+  if (!cases.length) { tbody.innerHTML='<tr><td colspan="6" class="empty-state">No cases yet.</td></tr>'; return; }
+  tbody.innerHTML = cases.map(c=>`
+    <tr>
+      <td style="font-family:'DM Mono',monospace;">${c.case_number}</td>
+      <td style="font-weight:600;">${c.title}</td>
+      <td><span class="badge badge-${c.status}">${c.status}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:0.65rem;">${new Date(c.closes_at).toLocaleDateString()}</td>
+      <td style="font-family:'DM Mono',monospace;">Rs.${c.prize_amount?.toLocaleString()}</td>
+      <td style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="btn btn-sm-outline" onclick="openCaseModal(${c.id})">Manage</button>
+        <button class="btn btn-danger" onclick="deleteCase(${c.id},'${c.title}')">Delete</button>
+      </td>
+    </tr>`).join('');
+}
+
+async function loadCasesForSelect() {
+  const res = await fetch('/api/admin/cases');
+  const {cases} = await res.json();
+  allCases = cases;
+  ['gc-case','filter-case','filter-verdict-case'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const current = sel.value;
+    while(sel.options.length > 1) sel.remove(1);
+    cases.forEach(c=>{
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.case_number + ' — ' + c.title;
+      sel.appendChild(opt);
+    });
+    if(current) sel.value = current;
+  });
+}
+
+async function createCase() {
+  const body = {
+    case_number: document.getElementById('nc-num').value.trim(),
+    title:       document.getElementById('nc-title').value.trim(),
+    location:    document.getElementById('nc-loc').value.trim(),
+    status:      document.getElementById('nc-status').value,
+    prize_amount:document.getElementById('nc-prize').value,
+    closes_at:   document.getElementById('nc-closes').value,
+    summary:     document.getElementById('nc-summary').value.trim(),
+    answer:      document.getElementById('nc-answer').value.trim(),
+  };
+  const res = await fetch('/api/admin/cases',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const data = await res.json();
+  const msg = document.getElementById('nc-msg');
+  if(res.ok){ showMsg(msg,'Case created!','s'); loadCases(); loadCasesForSelect(); }
+  else showMsg(msg, data.error,'e');
+}
+
+async function deleteCase(id, title) {
+  if(!confirm(`Delete case "${title}"? This will also delete all clues, suspects, and codes for this case.`)) return;
+  await fetch(`/api/admin/cases/${id}`,{method:'DELETE'});
+  loadCases();
+}
+
+// ── CASE MODAL ────────────────────────────────────────
+async function openCaseModal(caseId) {
+  const c = allCases.find(x=>x.id===caseId);
+  document.getElementById('modal-case-title').textContent = c.case_number + ' — ' + c.title;
+  const [cluesRes, suspectsRes] = await Promise.all([
+    fetch(`/api/admin/cases/${caseId}/clues`),
+    fetch(`/api/admin/cases/${caseId}/suspects`)
+  ]);
+  const {clues}    = await cluesRes.json();
+  const {suspects} = await suspectsRes.json();
+
+  document.getElementById('modal-case-body').innerHTML = `
+    <!-- Edit status -->
+    <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);">
+      <div style="font-size:0.78rem;font-weight:600;margin-bottom:0.8rem;">Case Status</div>
+      <div style="display:flex;gap:0.8rem;flex-wrap:wrap;align-items:center;">
+        <select class="fs" id="edit-status" style="width:auto;" onchange="updateCaseStatus(${caseId})">
+          ${['upcoming','active','closed'].map(s=>`<option value="${s}" ${c.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+        <span style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);">Changing to active makes case live on the site</span>
+      </div>
+    </div>
+
+    <!-- Suspects -->
+    <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);">
+      <div style="font-size:0.78rem;font-weight:600;margin-bottom:0.8rem;">Suspects (${suspects.length})</div>
+      ${suspects.map(s=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.03);">
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.75rem;font-weight:500;">${s.name} <span style="color:var(--muted);">— ${s.role}</span></div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);">${s.motive}</div>
+          </div>
+          <button class="btn btn-danger" onclick="deleteSuspect(${s.id},${caseId})">Remove</button>
+        </div>`).join('')}
+      <div style="margin-top:0.8rem;display:flex;gap:0.6rem;flex-wrap:wrap;">
+        <input class="fi" id="new-s-name" placeholder="Name" style="flex:1;min-width:100px;">
+        <input class="fi" id="new-s-role" placeholder="Role" style="flex:1;min-width:100px;">
+        <input class="fi" id="new-s-motive" placeholder="Motive" style="flex:2;min-width:180px;">
+        <button class="btn btn-outline" onclick="addSuspect(${caseId})">Add</button>
+      </div>
+    </div>
+
+    <!-- Clues -->
+    <div>
+      <div style="font-size:0.78rem;font-weight:600;margin-bottom:0.8rem;">Clues (${clues.length})</div>
+      ${clues.map(cl=>`
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:0.9rem 1rem;margin-bottom:0.6rem;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;">
+            <div style="font-family:'DM Mono',monospace;font-size:0.72rem;font-weight:500;">Day ${cl.day_number} — ${cl.title} <span style="color:var(--muted);">(${cl.clue_type})</span></div>
+            <div style="display:flex;gap:0.5rem;">
+              <button class="btn btn-sm-outline" onclick="editClue(${cl.id},'${escQ(cl.title)}','${escQ(cl.clue_type)}','${escQ(cl.released_at)}',\`${escQ(cl.content)}\`,${caseId})">Edit</button>
+              <button class="btn btn-danger" onclick="deleteClue(${cl.id},${caseId})">Del</button>
+            </div>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);">Releases: ${new Date(cl.released_at).toLocaleString()}</div>
+        </div>`).join('')}
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1rem;margin-top:0.5rem;">
+        <div style="font-size:0.75rem;font-weight:600;margin-bottom:0.8rem;">Add Clue</div>
+        <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="fg"><label class="fl">Day Number</label><input class="fi" id="nc-day" type="number" placeholder="1"></div>
+          <div class="fg"><label class="fl">Type</label>
+            <select class="fs" id="nc-type"><option value="case_file">Case File</option><option value="news">News</option><option value="interview">Interview</option><option value="court">Court</option><option value="verdict">Verdict</option></select>
+          </div>
+          <div class="fg"><label class="fl">Title</label><input class="fi" id="nc-ctitle" placeholder="Breaking News"></div>
+          <div class="fg"><label class="fl">Releases At</label><input class="fi" id="nc-released" type="datetime-local"></div>
+          <div class="fg full"><label class="fl">Content (HTML)</label><textarea class="fta" id="nc-content" style="min-height:120px;" placeholder="<p>Clue content here. Use &lt;strong&gt;, &lt;p class=&quot;hl&quot;&gt; for highlights.</p>"></textarea></div>
+        </div>
+        <button class="btn btn-red" style="margin-top:0.8rem;" onclick="addClue(${caseId})">Add Clue</button>
+        <div class="form-msg" id="clue-msg"></div>
+      </div>
+    </div>`;
+
+  document.getElementById('case-modal').classList.add('open');
+}
+
+function escQ(s) { return String(s).replace(/`/g,'\\`').replace(/\$/g,'\\$'); }
+function closeModal() { document.getElementById('case-modal').classList.remove('open'); }
+document.getElementById('case-modal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeModal(); });
+
+async function updateCaseStatus(caseId) {
+  const status = document.getElementById('edit-status').value;
+  await fetch(`/api/admin/cases/${caseId}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})});
+  loadCases();
+}
+
+async function addSuspect(caseId) {
+  const name   = document.getElementById('new-s-name').value.trim();
+  const role   = document.getElementById('new-s-role').value.trim();
+  const motive = document.getElementById('new-s-motive').value.trim();
+  if(!name||!role) return;
+  await fetch(`/api/admin/cases/${caseId}/suspects`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,role,motive})});
+  openCaseModal(caseId);
+}
+
+async function deleteSuspect(id, caseId) {
+  await fetch(`/api/admin/suspects/${id}`,{method:'DELETE'});
+  openCaseModal(caseId);
+}
+
+async function addClue(caseId) {
+  const body = {
+    day_number:  document.getElementById('nc-day').value,
+    clue_type:   document.getElementById('nc-type').value,
+    title:       document.getElementById('nc-ctitle').value.trim(),
+    released_at: document.getElementById('nc-released').value,
+    content:     document.getElementById('nc-content').value.trim(),
+  };
+  const res = await fetch(`/api/admin/cases/${caseId}/clues`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const data = await res.json();
+  const msg = document.getElementById('clue-msg');
+  if(res.ok){ showMsg(msg,'Clue added!','s'); openCaseModal(caseId); }
+  else showMsg(msg,data.error,'e');
+}
+
+async function deleteClue(id, caseId) {
+  if(!confirm('Delete this clue?')) return;
+  await fetch(`/api/admin/clues/${id}`,{method:'DELETE'});
+  openCaseModal(caseId);
+}
+
+function editClue(id, title, type, releasedAt, content, caseId) {
+  const newTitle    = prompt('Title:', title);
+  if(newTitle===null) return;
+  const newReleased = prompt('Releases at (ISO datetime):', releasedAt);
+  if(newReleased===null) return;
+  const newContent  = prompt('Content (HTML):', content);
+  if(newContent===null) return;
+  fetch(`/api/admin/clues/${id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:newTitle,clue_type:type,released_at:newReleased,content:newContent})})
+    .then(()=>openCaseModal(caseId));
+}
+
+// ── CODES ─────────────────────────────────────────────
+async function generateCodes() {
+  const case_id  = document.getElementById('gc-case').value;
+  const pack_type= document.getElementById('gc-type').value;
+  const count    = document.getElementById('gc-count').value;
+  const msg      = document.getElementById('gc-msg');
+  if(!case_id){ showMsg(msg,'Select a case first.','e'); return; }
+  const res = await fetch('/api/admin/codes/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({case_id,pack_type,count})});
+  const data= await res.json();
+  if(res.ok){
+    showMsg(msg,`${data.codes.length} codes generated. Click any code to copy.`,'s');
+    document.getElementById('generated-codes').innerHTML = `<div class="code-grid">${data.codes.map(c=>`<div class="code-chip" onclick="copyCode('${c}',this)">${c}<span class="copy-hint">copy</span></div>`).join('')}</div>`;
+    loadCodes();
+  } else showMsg(msg,data.error,'e');
+}
+
+function copyCode(code, el) {
+  navigator.clipboard.writeText(code);
+  el.querySelector('.copy-hint').textContent = 'copied!';
+  setTimeout(()=>{ el.querySelector('.copy-hint').textContent = 'copy'; }, 1500);
+}
+
+async function loadCodes() {
+  const caseId = document.getElementById('filter-case')?.value || '';
+  const url = caseId ? `/api/admin/codes?case_id=${caseId}` : '/api/admin/codes';
+  const res  = await fetch(url);
+  const {codes} = await res.json();
+  const tbody = document.getElementById('codes-tbody');
+  if(!codes.length){ tbody.innerHTML='<tr><td colspan="6" class="empty-state">No codes yet.</td></tr>'; return; }
+  tbody.innerHTML = codes.map(c=>`
+    <tr>
+      <td style="font-family:'DM Mono',monospace;letter-spacing:0.1em;cursor:pointer;" onclick="copyCode('${c.code}',this)">${c.code} <span style="font-size:0.55rem;color:var(--muted);">copy</span></td>
+      <td style="font-size:0.65rem;">${c.case_title||'—'}</td>
+      <td><span class="badge">${c.pack_type}</span></td>
+      <td><span class="badge ${c.used?'badge-used':'badge-unused'}">${c.used?'Used':'Unused'}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);">${c.used_at?new Date(c.used_at).toLocaleDateString():'—'}</td>
+      <td><button class="btn btn-danger" onclick="deleteCode(${c.id})">Del</button></td>
+    </tr>`).join('');
+}
+
+async function deleteCode(id) {
+  if(!confirm('Delete this code?')) return;
+  await fetch(`/api/admin/codes/${id}`,{method:'DELETE'});
+  loadCodes();
+}
+
+// ── VERDICTS ──────────────────────────────────────────
+async function loadVerdicts() {
+  const caseId = document.getElementById('filter-verdict-case')?.value||'';
+  const url    = caseId ? `/api/admin/verdicts?case_id=${caseId}` : '/api/admin/verdicts';
+  const res    = await fetch(url);
+  const {verdicts} = await res.json();
+  const container  = document.getElementById('verdicts-list');
+  if(!verdicts.length){ container.innerHTML='<div class="empty-state">No verdicts submitted yet.</div>'; return; }
+  container.innerHTML = verdicts.map(v=>`
+    <div class="verdict-row">
+      <div class="vr-top">
+        <div>
+          <div class="vr-name">${v.detective_name} <span style="font-size:0.65rem;color:var(--muted);font-weight:400;">· ${v.contact}</span></div>
+          <div class="vr-time">${new Date(v.submitted_at).toLocaleString()}</div>
+        </div>
+        ${v.is_correct===1?'<span class="badge badge-active">✓ Correct</span>':v.is_correct===0?'<span class="badge badge-used">✗ Wrong</span>':'<span class="badge badge-upcoming">Pending</span>'}
+      </div>
+      <div class="vr-suspect">Accused: ${v.suspect_name}</div>
+      <div class="vr-reason">${v.reasoning}</div>
+      <div class="vr-actions">
+        <button class="btn btn-green btn-sm" onclick="markVerdict(${v.id},1)">✓ Mark Correct</button>
+        <button class="btn btn-danger" onclick="markVerdict(${v.id},0)">✗ Mark Wrong</button>
+      </div>
+    </div>`).join('');
+}
+
+async function markVerdict(id, correct) {
+  await fetch(`/api/admin/verdicts/${id}/correct`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({is_correct:correct})});
+  loadVerdicts();
+}
+
+// ── UTILS ─────────────────────────────────────────────
+function showMsg(el, msg, type) { el.textContent=msg; el.className='form-msg '+type; el.style.display='block'; setTimeout(()=>el.style.display='none',4000); }
+
+checkAuth();
+</script>
+</body>
+</html>
