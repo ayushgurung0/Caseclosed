@@ -258,9 +258,3 @@ app.get('/api/admin/stats', requireAdmin, (req, res) => {
 // ── CATCH-ALL ────────────────────────────────────────────
 app.get('/admin*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('*',       (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-
-app.listen(PORT, () => {
-  console.log(`\n🔍 CaseClosed running at http://localhost:${PORT}`);
-  console.log(`   Admin panel: http://localhost:${PORT}/admin`);
-  console.log(`   Login: admin / admin123\n`);
-});
